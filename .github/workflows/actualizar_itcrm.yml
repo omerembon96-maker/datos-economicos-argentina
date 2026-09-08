@@ -1,0 +1,33 @@
+name: Actualizar ITCRM
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # Todos los días a las 12:00 UTC (9am Argentina)
+  workflow_dispatch:  # Permite correrlo manualmente también
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install pandas requests openpyxl
+
+      - name: Correr script
+        run: python itcrm.py
+
+      - name: Guardar cambios en el repositorio
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add itcrm.csv
+          git commit -m "Actualización automática ITCRM" || echo "Sin cambios"
+          git push
+          
